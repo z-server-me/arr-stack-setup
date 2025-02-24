@@ -1,0 +1,109 @@
+services:
+  ldr:
+    container_name: ldr
+    restart: ${RESTART}
+    image: lscr.io/linuxserver/lidarr:${TAG_NIG}
+    environment:
+      UMASK: ${UMASK}
+      UID: ${UID}
+      GID: ${GID}
+      TZ: ${TZ}
+      DOCKER_MODS: linuxserver/mods:lidarr-flac2mp3
+    healthcheck:
+      test: curl -url http://192.168.1.10:3001/api/push/USC7bRiicr?status=up&msg=OK&ping=
+      interval: ${INTERVAL}
+      retries: ${RETRIES}
+      timeout: ${TIMEOUT}
+    mem_limit: ${MEM_G}
+    memswap_limit: ${MEM_G}
+    ports:
+    - 8686:8686
+    volumes:
+    - ${VOLUME_VAR_LIB}/lidarr/config:/config:rw
+    - ${VOLUME_DOWNLOAD}
+    - ${VOLUME_MUSICS}
+
+  rdr:
+    container_name: rdr
+    restart: ${RESTART}
+    image: lscr.io/linuxserver/radarr:${TAG_DEV}
+    environment:
+      UMASK: ${UMASK}
+      UID: ${UID}
+      GID: ${GID}
+      TZ: ${TZ}
+    healthcheck:
+      test: curl -url http://192.168.1.10:3001/api/push/CpRV8wqvvU?status=up&msg=OK&ping=
+      interval: ${INTERVAL}
+      retries: ${RETRIES}
+      timeout: ${TIMEOUT}
+    mem_limit: ${MEM_G}
+    memswap_limit: ${MEM_G}
+    ports:
+    - 7878:7878
+    volumes:
+    - ${VOLUME_VAR_LIB}/radarr/config:/config:rw
+    - ${VOLUME_MOVIE}
+    - ${VOLUME_DOWNLOAD}
+
+  snr:
+    container_name: snr
+    restart: ${RESTART}
+    image: lscr.io/linuxserver/sonarr:${TAG_LAT}
+    environment:
+      UMASK: ${UMASK}
+      UID: ${UID}
+      GID: ${GID}
+      TZ: ${TZ}
+    healthcheck:
+      test: curl -url http://192.168.1.10:3001/api/push/8mc9GI1dEV?status=up&msg=OK&ping=
+      interval: ${INTERVAL}
+      retries: ${RETRIES}
+      timeout: ${TIMEOUT}
+    mem_limit: ${MEM_G}
+    memswap_limit: ${MEM_G}
+    ports:
+    - 8989:8989
+    volumes:
+    - ${VOLUME_VAR_LIB}/sonarr/config:/config:rw
+    - ${VOLUME_DOWNLOAD}
+    - ${VOLUME_TVSHOW}
+    - ${VOLUME_TVANIM}
+
+
+
+RST_VPN=unless-stopped                                        #restart: ${RST_VPN}
+RESTART=always                                                #restart: ${RESTART}
+DEVICES=/dev/net/tun                                          #${DEVICES}
+UMASK=002                                                     #UMASK: ${UMASK}
+UID=1031                                                      #PUID: ${UID}
+GID=100                                                       #PGID: ${GID}
+TZ=Europe/Paris                                               #TZ: ${TZ}
+INTERVAL=2m                                                   #interval: ${INTERVAL}
+RETRIES=5                                                     #retries: ${RETRIES}
+TIMEOUT=300s                                                  #timeout: ${TIMEOUT}
+MEM_M=256m                                                    #mem_limit: ${MEM_M}
+MEM_G=2g                                                      #mem_limit: ${MEM_G}
+OPENVPN_OPS=ignore_ping                                       #OPENVPN_OPS: ${OPENVPN_OPS}
+LOCAL_NETWORK=192.168.1.0/24                                  #LOCAL_NETWORK: ${LOCAL_NETWORK}
+STDIN_OPEN=true
+SYSCTLS=1
+TTY=true
+VOLUME_VPN_CA=/var/lib/docker/volumes/vpn-ca:/vpn:rw
+VOLUME_DEV=/dev/net/tun:/dev/net/tun
+VOLUME_VAR_LIB=/var/lib/docker/volumes                        #${VOLUME_VAR_LIB}
+FW='-f ""'
+APP=true
+USER=xxxxxxx
+PASS="xxxxxxxxxxxxxxx"
+TWH=/var/lib/docker/volumes/tms1/config/web
+VOLUME_DOWNLOAD=/downloads/incoming:/downloads:rw
+VOLUME_MOVIE=/movies:/movies:rw                               #${VOLUME_MOVIE}
+VOLUME_TVSHOW=/serie:/serie:rw                                #${VOLUME_TVSHOW}
+VOLUME_TVANIM=/anime:/anime:rw                                #${VOLUME_TVANIM}
+VOLUME_MUSICS=/musics:/music:rw                               #${VOLUME_MUSICS}
+IMAGE=linuxserver/deluge:2.0.5-r0-ls143                       #lscr.io/linuxserver/deluge
+IMAGE_TMS=lscr.io/linuxserver/transmission
+TAG_DEV=develop                                               #${TAG_DEV}
+TAG_NIG=nightly                                               #${TAG_NIG}
+TAG_LAT=latest                                                #${TAG_LAT}
